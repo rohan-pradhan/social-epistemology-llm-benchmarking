@@ -8,7 +8,7 @@ from datetime import datetime
 import numpy as np
 
 from ..models.base import BaseModel
-from ..utils.random import set_seed, get_random_state, derive_trial_seed, initialize_trial_randomness
+from ..utils.random import set_seed, derive_trial_seed, initialize_trial_randomness
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +36,7 @@ class ExperimentConfig:
     output_dir: str = "results"
     
     # Coin parameters
-    fair_prob: float = 0.5
-    bias_range: Tuple[float, float] = (0.2, 0.8)
+    coin_bias: float = 0.5  # The actual bias of the coin to use
     fairness_threshold: float = 0.01
     
     # Budget constraints  
@@ -208,25 +207,6 @@ class BaseExperiment(ABC):
             }, f, indent=2)
         
         logger.info(f"Results saved to {filename}")
-    
-    def generate_coin_bias(self) -> float:
-        """Generate a coin bias value, excluding the central fair threshold."""
-        if np.random.random() < 0.5:
-            return self.config.fair_prob
-        
-        min_bias, max_bias = self.config.bias_range
-        lower_cutoff = self.config.fair_prob - self.config.fairness_threshold
-        upper_cutoff = self.config.fair_prob + self.config.fairness_threshold
-        
-        assert min_bias < lower_cutoff, "bias_range.min must be below fair window"
-        assert max_bias > upper_cutoff, "bias_range.max must be above fair window"
-        
-        lower_width = lower_cutoff - min_bias
-        upper_width = max_bias - upper_cutoff
-        if np.random.random() < lower_width / (lower_width + upper_width):
-            return np.random.uniform(min_bias, lower_cutoff)
-        else:
-            return np.random.uniform(upper_cutoff, max_bias)
     
     def flip_coin(self, bias: float, n_flips: int) -> List[int]:
         """Generate coin flips with given bias

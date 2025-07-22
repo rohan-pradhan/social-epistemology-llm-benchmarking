@@ -18,11 +18,11 @@ Tests an LLM's ability to efficiently allocate a limited budget of queries acros
 
 **Key Features:**
 - Configurable coin bias (0.25, 0.5, 0.6)
-- Query budget limits (5, 10, 20 queries)
+- Query budget limits (5, 10 queries)
 - Optional persona mode with named sources
 - Profile query capability to learn about source reliability
 - Think tool for explicit reasoning
-- Display noise simulation (10% default)
+- Display noise simulation (15% default)
 
 **Key Metrics:**
 - **Brier Score**: Measures probability calibration (lower is better)
@@ -100,15 +100,23 @@ See `run_experiments/README.md` for detailed documentation on running experiment
 
 ## Supported Models
 
+The benchmark supports various models from OpenAI and Anthropic. While all models listed below can be used, the default models used in the parameter sweeps are:
+
+**Default Models in Parameter Sweeps:**
+- **OpenAI**: `GPT41Model` (GPT-4.1) and `O4MiniModel` (O4-Mini) for extended reasoning experiments
+- **Anthropic**: `ClaudeSonnet4Model` (Claude Sonnet 4)
+
 ### OpenAI
 - `GPT4oModel` - GPT-4o
 - `GPT4oMiniModel` - GPT-4o-mini  
 - `GPT4oMiniHighModel` - GPT-4o-mini with enhanced reasoning
+- `GPT41Model` - GPT-4.1
+- `O4MiniModel` - O4-Mini (used for extended reasoning in sweeps)
 
 ### Anthropic
-- `ClaudeSonnet4Model` - Claude Sonnet 4
-- `ClaudeOpus4Model` - Claude Opus 4
-- `Claude35HaikuModel` - Claude 3.5 Haiku
+- `ClaudeSonnet4Model` - Claude Sonnet 4 (claude-sonnet-4-20250514)
+- `ClaudeOpus4Model` - Claude Opus 4 (claude-opus-4-20250514)  
+- `Claude35HaikuModel` - Claude 3.5 Haiku (claude-3-5-haiku-20241022)
 
 ## Example Usage
 

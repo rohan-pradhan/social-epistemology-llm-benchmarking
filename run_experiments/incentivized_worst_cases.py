@@ -61,7 +61,7 @@ def create_experiment_config(persona_mode: bool,
         display_noise_prob=0.15,  # NOT 0.1 - this was 0.15 in original
         show_underlying_data=False,
         max_tool_iterations=30,
-        num_trials=20,  # num_trials_per_config (though we override to 10 for this experiment)
+        num_trials=10,  # num_trials_per_config
         
         # Swept parameters
         persona_mode=persona_mode,
@@ -69,9 +69,8 @@ def create_experiment_config(persona_mode: bool,
         total_budget=total_budget,
         allow_think_tool=allow_think_tool,
         
-        # Override coin bias generation
-        fair_prob=coin_bias,
-        bias_range=(coin_bias, coin_bias),  # Force specific bias
+        # Set the coin bias
+        coin_bias=coin_bias,
         
         # Other settings
         save_results=False,  # We'll handle saving ourselves
@@ -98,15 +97,8 @@ def run_single_config_trials(config: ExperimentAConfig,
             trial_seed = derive_trial_seed(config.random_seed, global_trial_index)
             initialize_trial_randomness(trial_seed)
             
-            # Override the coin bias generation to use our fixed value
-            original_generate_bias = experiment.generate_coin_bias
-            experiment.generate_coin_bias = lambda: config.fair_prob
-            
             # Run with incentivized condition - THE ONLY DIFFERENCE FROM ORIGINAL
             result = experiment.run_single_trial(model, trial_id, condition)
-            
-            # Restore original method
-            experiment.generate_coin_bias = original_generate_bias
             
             # Convert TrialResult to dict for easier handling
             trial_data = {

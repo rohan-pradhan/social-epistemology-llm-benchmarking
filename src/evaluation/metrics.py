@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, List, Any, Tuple
 from scipy import stats
 import logging
 
@@ -338,25 +338,5 @@ def compute_experiment_metrics(trial_results: List[Dict[str, Any]],
         n_correct = sum(accuracies)
         metrics['accuracy_ci'] = binomial_confidence_interval(n_correct, len(accuracies))
     
-    # Calibration analysis using original ground truth from trials
-    if len(predictions) >= 10:
-        # Extract ground truth outcomes from pre-computed trial results
-        outcomes = []
-        for result in trial_results:
-            if result.get('metrics', {}).get('accuracy') is not None:
-                # Use the ground truth that was used for trial-level accuracy calculation
-                pred_prob = result.get('model_response', {}).get('probability')
-                trial_accuracy = result.get('metrics', {}).get('accuracy', 0)
-                
-                # Reconstruct outcome from trial accuracy and prediction
-                if pred_prob is not None:
-                    predicted_fair = pred_prob >= 0.5
-                    actual_fair = (trial_accuracy == 1.0) == predicted_fair
-                    outcomes.append(1 if actual_fair else 0)
-        
-        if len(outcomes) == len(predictions):
-            ece, calibration_details = calibration_error(predictions, outcomes)
-            metrics['expected_calibration_error'] = ece
-            metrics['calibration_details'] = calibration_details
     
     return metrics

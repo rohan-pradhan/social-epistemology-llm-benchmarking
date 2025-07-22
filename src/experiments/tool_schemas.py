@@ -3,9 +3,9 @@ Tool schemas for converting BaseCoinTool classes to Anthropic function calling f
 This module provides the schemas and execution logic for native tool calling.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import logging
-from .tools import BaseCoinTool, ToolManager, ToolResult
+from .tools import ToolManager
 
 logger = logging.getLogger(__name__)
 

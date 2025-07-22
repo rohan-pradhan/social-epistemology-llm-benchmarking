@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from typing import Optional, List
+from typing import List
 import hashlib
 
 def set_seed(seed: int):

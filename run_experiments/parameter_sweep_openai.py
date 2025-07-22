@@ -33,7 +33,6 @@ import itertools
 import argparse
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
-import numpy as np
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -74,7 +73,7 @@ def create_experiment_config(persona_mode: bool,
         display_noise_prob=0.15,
         show_underlying_data=False,
         max_tool_iterations=30,
-        num_trials=20,  # num_trials_per_config
+        num_trials=10,  # num_trials_per_config
         
         # Swept parameters
         persona_mode=persona_mode,
@@ -82,9 +81,8 @@ def create_experiment_config(persona_mode: bool,
         total_budget=total_budget,
         allow_think_tool=allow_think_tool,
         
-        # Override coin bias generation
-        fair_prob=coin_bias,
-        bias_range=(coin_bias, coin_bias),  # Force specific bias
+        # Set the coin bias
+        coin_bias=coin_bias,
         
         # Other settings
         save_results=False,  # We'll handle saving ourselves
@@ -94,7 +92,7 @@ def create_experiment_config(persona_mode: bool,
 def run_single_config_trials(config: ExperimentAConfig, 
                            model, 
                            config_id: str, 
-                           num_trials: int = 20,
+                           num_trials: int = 10,
                            global_trial_start_index: int = 0) -> List[Dict[str, Any]]:
     """Run multiple trials for a single configuration"""
     experiment = ExperimentA(config)
@@ -110,14 +108,7 @@ def run_single_config_trials(config: ExperimentAConfig,
             trial_seed = derive_trial_seed(config.random_seed, global_trial_index)
             initialize_trial_randomness(trial_seed)
             
-            # Override the coin bias generation to use our fixed value
-            original_generate_bias = experiment.generate_coin_bias
-            experiment.generate_coin_bias = lambda: config.fair_prob
-            
             result = experiment.run_single_trial(model, trial_id, "default")
-            
-            # Restore original method
-            experiment.generate_coin_bias = original_generate_bias
             
             # Convert TrialResult to dict for easier handling
             trial_data = {
@@ -147,7 +138,7 @@ def run_single_config_trials(config: ExperimentAConfig,
             # Add failed trial
             trial_results.append({
                 'trial_id': trial_id,
-                'experiment_type': 'MetaEpistemicDelegation',
+                'experiment_type': 'ExperimentA',
                 'model_name': model.model_name,
                 'condition': 'default',
                 'ground_truth': {},
@@ -427,8 +418,8 @@ def run_parameter_sweep(resume_detailed_path: Optional[str] = None,
     print(f"Total Trials: {len(all_results)}")
     print()
     
-    print(f"{'Config':<8} {'Persona':<7} {'Profile':<7} {'Budget':<6} {'Bias':<4} {'Think':<7} {'Model':<12} {'Success':<7} {'Brier':<6} {'Accuracy':<8} {'ECE':<8}")
-    print("-" * 100)
+    print(f"{'Config':<8} {'Persona':<7} {'Profile':<7} {'Budget':<6} {'Bias':<4} {'Think':<7} {'Model':<12} {'Success':<7} {'Brier':<6} {'Accuracy':<8}")
+    print("-" * 92)
     
     for config in summary_results:
         params = config['parameters']
@@ -439,7 +430,6 @@ def run_parameter_sweep(resume_detailed_path: Optional[str] = None,
         success_rate = metrics.get('success_rate', 0)
         brier_score = metrics.get('mean_brier_score', 'N/A')
         accuracy = metrics.get('accuracy', 'N/A')
-        calibration_err = metrics.get('expected_calibration_error', metrics.get('calibration_error', 'N/A'))
         
         print(f"{config['config_index']:>6}   "
               f"{'Yes' if params['persona_mode'] else 'No':<7} "
@@ -450,8 +440,7 @@ def run_parameter_sweep(resume_detailed_path: Optional[str] = None,
               f"{model_info['model_name']:<12} "
               f"{success_rate:<7.2f} "
               f"{brier_score if isinstance(brier_score, str) else f'{brier_score:<6.3f}'} "
-              f"{accuracy if isinstance(accuracy, str) else f'{accuracy:<8.2f}'} "
-              f"{calibration_err if isinstance(calibration_err, str) else f'{calibration_err:<8.3f}'}")
+              f"{accuracy if isinstance(accuracy, str) else f'{accuracy:<8.2f}'}")
     
     print("\nFiles saved:")
     print(f"  Detailed results: {detailed_filename}")

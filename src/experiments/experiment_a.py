@@ -1,6 +1,5 @@
 import re
-import json
-from typing import Dict, Any, List, Optional, Union
+from typing import Dict, Any, List, Union
 import numpy as np
 
 from .base import BaseExperiment, TrialResult, ExperimentConfig
@@ -101,8 +100,8 @@ class ExperimentA(BaseExperiment):
     
     def _generate_trial_params(self, condition: str) -> Dict[str, Any]:
         """Generate parameters for a single trial"""
-        # Generate coin bias (same for all tools in this trial)
-        coin_bias = self.generate_coin_bias()
+        # Use the configured coin bias
+        coin_bias = self.config.coin_bias
         
         return {
             'coin_bias': coin_bias,
@@ -294,7 +293,7 @@ PROFILE_QUERY: [Tool Name]
 You may query multiple profiles or proceed directly to allocation."""
 
         if condition == "incentivized":
-            prompt += f"\n\nNOTE: One of the tools may be incentivized to provide biased information. Consider this when making your allocation decisions."
+            prompt += "\n\nNOTE: One of the tools may be incentivized to provide biased information. Consider this when making your allocation decisions."
         
         return prompt
     
@@ -422,10 +421,6 @@ This means you think there's a 65% chance the coin is fair."""
             'raw_response': response_text
         }
         
-        # Look for FINAL ASSESSMENT format first (native tool calling)
-        assessment_pattern = r'FINAL ASSESSMENT:(.*?)(?=REASONING:|$)'
-        assessment_match = re.search(assessment_pattern, response_text, re.IGNORECASE | re.DOTALL)
-        
         # Look for REASONING section
         reasoning_pattern = r'REASONING:\s*(.*?)$'
         reasoning_match = re.search(reasoning_pattern, response_text, re.IGNORECASE | re.DOTALL)
@@ -496,9 +491,9 @@ This means you think there's a 65% chance the coin is fair."""
             metrics['accuracy'] = 1.0 if (predicted_prob >= 0.5) == ground_truth['is_fair'] else 0.0
         else:
             metrics['failed_parse'] = 1.0
-            metrics['brier_score'] = 0.25  # Worst possible for uninformed guess
-            metrics['log_loss'] = -np.log(0.5)  # Log loss for 50% prediction
-            metrics['accuracy'] = 0.0
+            metrics['brier_score'] = -1  # Sentinel value for failed parse
+            metrics['log_loss'] = -1  # Sentinel value for failed parse
+            metrics['accuracy'] = -1  # Sentinel value for failed parse
         
         # Tool usage efficiency metrics
         total_queries = len(tool_manager.query_history)
