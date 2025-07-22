@@ -29,7 +29,6 @@ Tests an LLM's ability to efficiently allocate a limited budget of queries acros
 **Key Metrics:**
 - **Brier Score**: Measures probability calibration (lower is better)
 - **Log Loss**: Alternative accuracy measure for probabilistic predictions
-- **Allocation Efficiency**: How well budget is allocated to reliable sources
 - **Budget Utilization**: Percentage of available budget used
 - **Tool Diversity**: Distribution of queries across different sources
 
@@ -120,14 +119,6 @@ The benchmark supports various models from OpenAI and Anthropic. While all model
 - `ClaudeOpus4Model` - Claude Opus 4 (claude-opus-4-20250514)  
 - `Claude35HaikuModel` - Claude 3.5 Haiku (claude-3-5-haiku-20241022)
 
-## Example Usage
-
-See `example_usage.py` for complete examples of running each experiment.
-
-```bash
-python example_usage.py
-```
-
 ## Project Structure
 
 ```
@@ -166,9 +157,6 @@ The benchmark uses several key metrics:
 - **Log Loss**: Measures prediction confidence (lower is better)  
 - **Accuracy**: Binary classification accuracy
 - **Calibration Error**: Expected calibration error across predictions
-- **Allocation Efficiency**: How well budget is allocated across reliable sources
-- **Belief Convergence**: How well agents reach consensus (Experiment B)
-- **Bias Resistance**: Ability to resist persona biases (Experiment C)
 
 ## Results
 
@@ -176,13 +164,6 @@ Results are automatically saved to the `results/` directory as JSON files contai
 - Trial-level data for each model and condition
 - Aggregated metrics across trials
 - Detailed metadata for analysis
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
 
 ## License
 
