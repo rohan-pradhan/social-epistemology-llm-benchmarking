@@ -1,5 +1,7 @@
 # Social Epistemology Benchmark
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A benchmark for evaluating meta-epistemic reasoning capabilities in large language models. This benchmark tests how AI systems gather information from multiple sources, evaluate source reliability, and make calibrated probability judgments under uncertainty.
 
 ## Overview
@@ -184,4 +186,4 @@ Results are automatically saved to the `results/` directory as JSON files contai
 
 ## License
 
-[Add your license here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
